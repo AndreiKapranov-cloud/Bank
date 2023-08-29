@@ -26,4 +26,29 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13'
+    
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    //implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
+    
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
+    
+    
+    apply plugin: "eclipse"
+     
+    compile files('libs/ojdbc7.jar')
+    
+    // Get 19.18.0.0 Oracle JDBC driver with DMS (ojdbc8dms.jar) and other companion jars
+   implementation("com.oracle.database.observability:ojdbc8-observability:19.18.0.0")
+    
+  
+   compile fileTree(dir: 'C:\Users\Lenovo\Downloads\jar_files', include: '*.jar')
+ 
+   compile fileTree(dir: 'C:\Users\Lenovo\Downloads\postgresql-42.6.0.jar', include: '*.jar')
+   
+   implementation files('resources\ojdbc8-19.3.0.0.jar', 'resources\ons-19.3.0.0.jar','resources\oraclepki-19.3.0.0.jar','resources\osdt_cert-19.3.0.0.jar','resources\osdt_core-19.3.0.0.jar','resources\simplefan-19.3.0.0.jar','resources\ucp-19.3.0.0.jar','resources\postgresql-42.6.0.jar')
+
+   // https://mvnrepository.com/artifact/org.postgresql/postgresql
+   implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
+
 }

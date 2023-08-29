@@ -32,5 +32,13 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/ojdbc8-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/ons-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/oraclepki-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/osdt_cert-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/osdt_core-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/simplefan-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/ucp-19.3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/postgresql-42.6.0.jar"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>
