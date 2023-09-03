@@ -40,5 +40,6 @@
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/simplefan-19.3.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/ucp-19.3.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/postgresql-42.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/lombok (1).jar"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

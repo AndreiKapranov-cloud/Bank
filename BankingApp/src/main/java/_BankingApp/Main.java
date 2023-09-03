@@ -1,35 +1,14 @@
 package _BankingApp;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-
-
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.TimerTask;
+
 import javax.sql.DataSource;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.postgresql.util.PSQLException;
 
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.sql.DataSource;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.postgresql.util.PSQLException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.sql.DataSource;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.postgresql.util.PSQLException;
-
-
-public class Main {
+public class Main extends TimerTask{
     public static void main(String[] args) throws Exception {
     	
 //    	Connection connection = null;
@@ -51,9 +30,14 @@ public class Main {
 //    	Account acc = new Account("Roma","0001");
 //    	acc.showmenu();
     	
-    
-        DataSource dataSource = createDataSource();
-        Connection conn = dataSource.getConnection();
+        
+    	//DataSource dataSource = DB.createDataSource();
+    	Connection conn = DB.getConnection();
+    	
+    	
+    	
+//        DataSource dataSource = createDataSource();
+//        Connection conn = dataSource.getConnection();
 
         getAllBirds(conn);
         getFilteredBirds(conn);
@@ -80,13 +64,13 @@ public class Main {
 
     }
 
-    private static DataSource createDataSource() {
-        final String url =
-                "jdbc:postgresql://localhost:5432/bird_encyclopedia?user=postgres&password=corbandallas21";
-        final PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setUrl(url);
-        return dataSource;
-    }
+//    private static DataSource createDataSource() {
+//        final String url =
+//                "jdbc:postgresql://localhost:5432/bird_encyclopedia?user=postgres&password=corbandallas21";
+//        final PGSimpleDataSource dataSource = new PGSimpleDataSource();
+//        dataSource.setUrl(url);
+//        return dataSource;
+//    }
 
     // Getting all entries from database
     private static void getAllBirds(Connection conn) throws SQLException {
@@ -100,6 +84,18 @@ public class Main {
         // true if a row is present, and false otherwise
         // note that initially the result pointer points before the first row, so we have to call
         // rs.next() the first time
+    
+        
+        
+        java.util.Timer t = new java.util.Timer();
+        t.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        System.out.println("This will run every 5 seconds");
+
+                    }
+                }, 5000, 5000);
         while (rs.next()) {
             // Now that `rs` points to a valid row (rs.next() is true), we can use the `getString`
             // and `getLong` methods to return each column value of the row as a string and long
@@ -149,7 +145,13 @@ public class Main {
         deleteStmt.setString(1, "rooster");
         int deletedRows = deleteStmt.executeUpdate();
         System.out.printf("deleted %s bird(s)%n", deletedRows);
-    } 	
+    }
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	} 	
     	
     }
 
