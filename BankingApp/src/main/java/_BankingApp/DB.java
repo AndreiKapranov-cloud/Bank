@@ -17,9 +17,7 @@ public class DB {
     	 final String userName = "postgres";
     	 final String password = "corbandallas21";
     	 
-//         final String url =
-//                 "jdbc:postgresql://localhost:5432/bird_encyclopedia?user=postgres&password=corbandallas21";
-     
+
     	 final String url =  "jdbc:postgresql://localhost:" + localhost + "/" + dbName + "?user=" + userName + "&password=" + password;
     	 
     	 

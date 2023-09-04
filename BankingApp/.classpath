@@ -39,7 +39,8 @@
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/osdt_core-19.3.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/simplefan-19.3.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/jar_files/ucp-19.3.0.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/postgresql-42.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/postgresql-42.6.0.jar" sourcepath="src/main/resources/postgresql-42.6.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/lombok (1).jar"/>
+	<classpathentry kind="lib" path="C:/Users/Lenovo/Downloads/postgresql-42.2.27.jre7.jar"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>
