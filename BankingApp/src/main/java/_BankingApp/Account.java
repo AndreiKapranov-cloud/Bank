@@ -15,21 +15,44 @@ import lombok.Setter;
 @Getter @Setter @NoArgsConstructor
 public class Account {
 	int balance;
-	
-	
-	static void deposit(int amount,Connection conn,String login,String bankName)throws SQLException {
-		int transactionId = 0;
-		int accountId = getAccountByUserLoginAndBankName(conn,login,bankName);
-		String currency = "USD";
+	static synchronized void transfer(int amount,Connection conn,String fromLogin,String toLogin,String fromBankName,String toBankName) throws SQLException {
+		int transactionId = withdraw(amount,conn,fromLogin,fromBankName);
+	 	
 		
-		if(amount > 0) {
-		PreparedStatement updateStmt =
-	             conn.prepareStatement("UPDATE account SET balance = balance + ? WHERE account_id = ? ");
-	     updateStmt.setInt(1,amount);
-	     updateStmt.setInt(2, accountId);
-	     updateStmt.executeUpdate();
+		int accountId = depositWithoutTransaction(amount,conn,toLogin,toBankName);
+		PreparedStatement insertStmt1 =
+	             conn.prepareStatement("INSERT INTO transactions_account (account_account_id,transactions_transaction_id) VALUES (?,?)");
+	             		
+	     insertStmt1.setInt(1,accountId);
+	     insertStmt1.setInt(2,transactionId);
+	     insertStmt1.executeUpdate();
+	}
+	
+	static int depositWithoutTransaction(int amount,Connection conn,String login,String bankName) throws SQLException {
+	
+	int accountId = getAccountByUserLoginAndBankName(conn,login,bankName);
+	
+	
+	if(amount > 0) {
+	PreparedStatement updateStmt =
+             conn.prepareStatement("UPDATE account SET balance = balance + ? WHERE account_id = ? ");
+     updateStmt.setInt(1,amount);
+     updateStmt.setInt(2, accountId);
+     updateStmt.executeUpdate();
 
-	 
+	    }
+	return accountId;
+	}
+	
+	
+	
+	
+	static synchronized void deposit(int amount,Connection conn,String login,String bankName)throws SQLException {
+		int transactionId = 0;
+		
+		String currency = "USD";
+
+		 int accountId = depositWithoutTransaction(amount,conn,login,bankName);
 	     
 	     PreparedStatement insertStmt =
 	             conn.prepareStatement("INSERT INTO transactions (amount,timestemp,currency) VALUES (?, ?,?) RETURNING transaction_id");
@@ -40,29 +63,33 @@ public class Account {
 	     insertStmt.setInt(1,amount);
 	     insertStmt.setTimestamp(2, timestamp);
 	    
-	     insertStmt.setString(3,currency);
+	    
+		 insertStmt.setString(3,currency);
 	  
 	     ResultSet rs = insertStmt.executeQuery();
-	     while (rs.next()) {
+	     
+		while (rs.next()) {
 
 				 transactionId =  rs.getInt("transaction_id");
 				 }
 	    
 	     PreparedStatement insertStmt1 =
-	             conn.prepareStatement("INSERT INTO account_transactions (account_trans_id,transaction_transaction_id) VALUES (?,?)");
+	             conn.prepareStatement("INSERT INTO transactions_account (account_account_id,transactions_transaction_id) VALUES (?,?)");
 	             		
 	     insertStmt1.setInt(1,accountId);
 	     insertStmt1.setInt(2,transactionId);
 	     insertStmt1.executeUpdate();
 	     
-	 
+	   
 	    	}
-		}
 		
-		static int getBalance(Connection conn,int accountId) throws SQLException {
+		
+	
+	
+		static synchronized int getBalance(Connection conn,int accountId) throws SQLException {
 			
 			
-			int balance = 0;
+		int balance = 0;
 			
 		
 			PreparedStatement stmt = conn.prepareStatement("select balance from account where account_id=?");
@@ -78,14 +105,18 @@ public class Account {
 		
 	
 		
-		static void withdraw(int amount,Connection conn,String login,String bankName)throws SQLException {
-			int transactionId = 0;
+	
+		
+		static synchronized int withdraw(int amount,Connection conn,String login,String bankName)throws SQLException {
+
+		    int transactionId = 0;	
+			
 			int accountId = getAccountByUserLoginAndBankName(conn,login,bankName);
 			int balance = getBalance(conn,accountId);
 			String currency = "USD";
-			
-			
-			if(amount <= balance) {
+			if(amount > balance) {
+			System.out.println("Insufficient founds");
+			}else if(amount <= balance) {
 			PreparedStatement updateStmt =
 		             conn.prepareStatement("UPDATE account SET balance = balance - ? WHERE account_id = ?");
 		     updateStmt.setInt(1,amount);
@@ -98,7 +129,6 @@ public class Account {
 		     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		    
 		     
-		     
 		     insertStmt.setInt(1,amount);
 		     insertStmt.setTimestamp(2, timestamp);
 		    
@@ -107,36 +137,38 @@ public class Account {
 		     ResultSet rs = insertStmt.executeQuery();
 		     while (rs.next()) {
 
-					 transactionId =  rs.getInt("transaction_id");
+					transactionId =  rs.getInt("transaction_id");
 		     
 		     
 			}
 			
 		     PreparedStatement insertStmt1 =
-		             conn.prepareStatement("INSERT INTO account_transactions (account_trans_id,transaction_transaction_id) VALUES (?,?)");
+		             conn.prepareStatement("INSERT INTO transactions_account (account_account_id,transactions_transaction_id) VALUES (?,?)");
 		             		
 	         insertStmt1.setInt(1,accountId);
 		     insertStmt1.setInt(2,transactionId);
 		     insertStmt1.executeUpdate();
 		
+			   }
+			return transactionId;
 			}		
 			
 	
-	}
+	
 	
 	 static int getAccountByUserLoginAndBankName(Connection conn,String login,String bankName) throws SQLException {
 
- 	PreparedStatement stmt = conn.prepareStatement("select account_id from account LEFT JOIN bank ON account.account_id = bank.acnt_id LEFT JOIN users ON account.account_id = users.ac_id where users.login = ? And bank.name = ?  LIMIT 1");
-    stmt.setString(1,login);
-    stmt.setString(2, bankName);
+ 	 PreparedStatement stmt = conn.prepareStatement("select account_id from account WHERE user_id = (SELECT user_id FROM users WHERE login = ?) AND bank_id = (select bank_id from bank WHERE name = ?) LIMIT 1");
+     stmt.setString(1,login);
+     stmt.setString(2, bankName);
 
     
     
-    int accountId = 0;
+     int accountId = 0;
     
-    ResultSet rs = stmt.executeQuery();
+     ResultSet rs = stmt.executeQuery();
 
-  while (rs.next()) {
+     while (rs.next()) {
 
 	 accountId = rs.getInt("account_id");
 
@@ -199,10 +231,10 @@ public class Account {
 		
 		
 		System.out.println("\n");
-		
+		System.out.println("A. Check Balance");
 		System.out.println("B. Deposit");
 		System.out.println("C. Withdraw");
-	
+		System.out.println("D. Transfer");
 		System.out.println("E. Exit");
 		
 		do {
@@ -239,7 +271,25 @@ public class Account {
 				System.out.println("\n");
 				break;
 				
-
+			case 'D':
+			
+				System.out.println("--------------------------------------");
+				System.out.println("Enter BankName of the recipient:");
+				System.out.println("--------------------------------------");
+				String recipientBankName = scanner.next();
+				System.out.println("--------------------------------------");
+				System.out.println("Enter login of the recipient:");
+				System.out.println("--------------------------------------");
+				String recipientLogin = scanner.next();
+				System.out.println("--------------------------------------");
+				System.out.println("Enter an amount to transfer:");
+				System.out.println("--------------------------------------");
+      			int amount3 = scanner.nextInt();
+      			transfer(amount3,conn,login,recipientLogin,bankName,recipientBankName);
+				
+				System.out.println("\n");
+				break;
+				
 			case 'E':
 				System.out.println("******************************************");
 				break;
