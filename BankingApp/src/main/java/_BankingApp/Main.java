@@ -16,7 +16,8 @@ public class Main extends TimerTask{
     	
     	
     	Connection conn = DB.getConnection();
-
+    	ScheduledThreadPoolExecutor.executeSchedulingOnceAMonth(conn);
+    	ScheduledThreadPoolExecutor.executeScheduling(conn);
     	Account.showmenu(conn);
     	
     	

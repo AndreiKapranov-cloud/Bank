@@ -1,12 +1,21 @@
 package _BankingApp;
-
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.math.RoundingMode;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+
+import org.yaml.snakeyaml.Yaml;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -179,10 +188,61 @@ public class Account {
      
 	 }      
 	        
+	 static void processAllAccounts (Connection conn) throws SQLException, FileNotFoundException {
+		 int balance = 0;
+		 int accountId = 0;
+		 Map <Integer,Integer> accountMap = new HashMap<>();
+		 PreparedStatement stmt = conn.prepareStatement("select account_id,balance from account");
+		 ResultSet rs = stmt.executeQuery();
+		
+		 
+		 //get all accounts balances into map
+		 
+		 while (rs.next()) {
+             
+			 accountId = rs.getInt("account_id");
+			 balance = rs.getInt("balance");
+			 accountMap.put(accountId, balance);
+		 }
+		
+		 
+		 //get percentage from yml file
+		 InputStream inputStream1 = new FileInputStream(new File("./src/main/resources/confo.yml"));
 
+		 Yaml yaml2 = new Yaml();
+		
+		 int percent = yaml2.load(inputStream1);
+		
+		 
+		 //getting the percent that adds every half of a minute and make a map of the percents 
+		 // that we add to each amount to corresponding ids of accounts
+		 Map <Integer,Double> percentMap = new HashMap<>();
+		 for (var entry : accountMap.entrySet()) {
+			 percentMap.put(entry.getKey(),Double.valueOf(entry.getValue())*percent/365/24/60/60/2);
+			
+			}
+		 //getting map of accounts to saved added percents from another yml
+		 InputStream inputStream = new FileInputStream(new File("./src/main/resources/conf.yml"));
+
+		 Yaml yaml = new Yaml();
+		 Map<Integer, Double> data = yaml.load(inputStream);
+		
+	     //adding percents to each amount corresponding to each account
+		 percentMap.forEach((k, v) -> data.merge(k, v, Double::sum));
+		
+		 //saving map with added percent amounts to yml
+		 PrintWriter writer = new PrintWriter(new File("./src/main/resources/conf.yml"));
+		
+		 Yaml yaml1 = new Yaml();
+		 yaml1.dump(data, writer);
+		 
+		
+		// System.out.println(data);
+		
+	 }
 	
 
- static boolean checkIfUserExists(Connection conn,String login,String password) throws SQLException {
+      static boolean checkIfUserExists(Connection conn,String login,String password) throws SQLException {
       PreparedStatement stmt = conn.prepareStatement("select * from users where login = ? AND password = ?");
       stmt.setString(1, login);
       stmt.setString(2, password);
