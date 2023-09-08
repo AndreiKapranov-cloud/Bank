@@ -23,65 +23,65 @@ import java.time.temporal.ChronoUnit;
 	  static void executeSchedulingOnceAMonth(Connection conn) {
 	
 		  
-		  final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+	final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-		  Runnable task = new Runnable() {
-		      @Override
-		      public void run() {
-		          ZonedDateTime now = ZonedDateTime.now();
-		          long delay = now.until(now.plusMonths(1), ChronoUnit.MILLIS);
+	Runnable task = new Runnable() {
+    @Override
+    public void run() {
+    ZonedDateTime now = ZonedDateTime.now();
+    long delay = now.until(now.plusMonths(1), ChronoUnit.MILLIS);
 
-		          try {
-		        	  //get the percents
-		        		 InputStream inputStream = new FileInputStream(new File("./src/main/resources/conf.yml"));
+    try {
+	//get the percents
+    InputStream inputStream = new FileInputStream(new File("./src/main/resources/conf.yml"));
 
-			     		 Yaml yaml = new Yaml();
-			     		 Map<Integer, Double> data = yaml.load(inputStream);
+	 Yaml yaml = new Yaml();
+	 Map<Integer, Double> data = yaml.load(inputStream);
 			     		
-			     	    //add percents to database
-			     		for (int key : data.keySet()) {
+	//add percents to database
+	for (int key : data.keySet()) {
 			     	      
-			     		PreparedStatement updateStmt =
-			     	             conn.prepareStatement("UPDATE account SET balance = balance + ? WHERE account_id = ? ");
-			     	     updateStmt.setInt(1,data.get(key).intValue());
-			     	     updateStmt.setInt(2, key);
-			     	     updateStmt.executeUpdate();
+	PreparedStatement updateStmt =
+			 conn.prepareStatement("UPDATE account SET balance = balance + ? WHERE account_id = ? ");
+	updateStmt.setInt(1,data.get(key).intValue());
+	updateStmt.setInt(2, key);
+    updateStmt.executeUpdate();
 			          }
 			      
-			     		//reset the percents
-			      for (int key : data.keySet()) {
-			    	  data.put(key, 0.0);  
-			      }
-			     		//put the empty map to configuration file
-			     		 PrintWriter writer = new PrintWriter(new File("./src/main/resources/conf.yml"));
+    //reset the percents
+    for (int key : data.keySet()) {
+	 data.put(key, 0.0);  
+			     }
+	//put the empty map to configuration file
+    PrintWriter writer = new PrintWriter(new File("./src/main/resources/conf.yml"));
 			     		
-			     		 Yaml yaml1 = new Yaml();
-			     		 yaml1.dump(data, writer);
+	Yaml yaml1 = new Yaml();
+	yaml1.dump(data, writer);
 			     		
-		          } catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					//schedule the next iteration
-		              executor.schedule(this, delay, TimeUnit.MILLISECONDS);
+	 } catch (SQLException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+	} catch (FileNotFoundException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+	} finally {
+	//schedule the next iteration
+	 executor.schedule(this, delay, TimeUnit.MILLISECONDS);
 		          }
 		      }
 		  };
 		  
 		  
-		  int dayOfMonth = 28;
+	 int dayOfMonth = 28;
 
-		  ZonedDateTime dateTime = ZonedDateTime.now();
-		  if (dateTime.getDayOfMonth() >= dayOfMonth) {
-		      dateTime = dateTime.plusMonths(1);
-		  }
-		  dateTime = dateTime.withDayOfMonth(dayOfMonth);
-		  executor.schedule(task,
-		      ZonedDateTime.now().until(dateTime, ChronoUnit.MILLIS),
-		      TimeUnit.MILLISECONDS);
+	 ZonedDateTime dateTime = ZonedDateTime.now();
+	 if (dateTime.getDayOfMonth() >= dayOfMonth) {
+	 dateTime = dateTime.plusMonths(1);
+	}
+	dateTime = dateTime.withDayOfMonth(dayOfMonth);
+	executor.schedule(task,
+	ZonedDateTime.now().until(dateTime, ChronoUnit.MILLIS),
+	TimeUnit.MILLISECONDS);
 		  
 		  
 		  
